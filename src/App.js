@@ -13,7 +13,7 @@ function App() {
     if (token) {
       dispatch(verifyToken());
     }
-  }, [dispatch]);
+  }, [dispatch, token]);
   return (
     <div className="App">
       <Routes>
