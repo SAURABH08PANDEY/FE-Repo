@@ -9,25 +9,25 @@ function OtpVerificationForm() {
   const dispatch = useDispatch();
   const [emailOtp, setEmailOtp] = useState("");
   const [mobileOtp, setMobileOtp] = useState("");
-  const data = useSelector((state) => state?.testSlice);
-  console.log(data, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+  const signupData = useSelector((state) => state?.testSlice?.signupData);
+  const otpVerificationData = useSelector((state) => state?.testSlice?.otpVerification);
 
   const handleEmailOtpVerify = () => {
-    console.log("Email OTP Verified:", emailOtp);
     dispatch(
       otpVerification({
-        email: data?.signupData?.data?.user?.email,
-        emailotp: emailOtp,
+        companyId: signupData?.companyId,
+        otp: emailOtp,
+        type: "email",
       })
     );
   };
 
   const handleMobileOtpVerify = () => {
-    console.log("Mobile OTP Verified:", mobileOtp);
     dispatch(
       otpVerification({
-        email: data?.signupData?.data?.user?.email,
-        numberotp: mobileOtp,
+        companyId: signupData?.companyId,
+        otp: mobileOtp,
+        type: "phone",
       })
     );
   };
@@ -47,11 +47,13 @@ function OtpVerificationForm() {
           type={"number"}
           value={emailOtp}
           customState={setEmailOtp}
+          isChecked={otpVerificationData?.emailStatus}
         />
-        <Button1
+        {!otpVerificationData?.emailStatus && <Button1
           text={"Verify"}
           onClickFunction={() => handleEmailOtpVerify()}
-        />
+          isLoading={otpVerificationData?.isLoading}
+        />}
 
         <InputField
           logo={"call"}
@@ -59,11 +61,13 @@ function OtpVerificationForm() {
           type={"number"}
           value={mobileOtp}
           customState={setMobileOtp}
+          isChecked={otpVerificationData?.phoneStatus}
         />
-        <Button1
+        {!otpVerificationData?.phoneStatus && <Button1
           text={"Verify"}
           onClickFunction={() => handleMobileOtpVerify()}
-        />
+          isLoading={otpVerificationData?.isLoading}
+        />}
       </div>
     </div>
   );

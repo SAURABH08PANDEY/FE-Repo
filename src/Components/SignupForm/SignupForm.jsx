@@ -3,7 +3,7 @@ import "./signupForm.scss";
 import InputField from "../InputField/InputField";
 import Button1 from "../Button/Button1";
 import { signUp } from "../../redux/testSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 function SignupForm() {
   const [name, setName] = useState("");
@@ -11,18 +11,25 @@ function SignupForm() {
   const [companyName, setCompanyName] = useState("");
   const [companyEmail, setCompanyEmail] = useState("");
   const [employeeSize, setEmployeeSize] = useState("");
-  const dispatch = useDispatch();
+  const { isLoading } = useSelector((state) => state?.testSlice?.signupData);
 
+  const dispatch = useDispatch();
   const handleSubmit = () => {
     dispatch(
       signUp({
         name,
-        companyname: companyName,
-        email: companyEmail,
-        phonenumber: phone,
-        employeesize: employeeSize,
+        company_name: companyName,
+        company_email: companyEmail,
+        phone_number: phone,
+        employee_size: employeeSize,
       })
     );
+
+    setName("");
+    setPhone("");
+    setCompanyName("");
+    setEmployeeSize("");
+    setCompanyEmail("");
   };
 
   return (
@@ -74,7 +81,7 @@ function SignupForm() {
           <span className="blue">Terms</span> &{" "}
           <span className="blue">Conditions</span>
         </div>
-        <Button1 text={"Proceed"} onClickFunction={() => handleSubmit()} />
+        <Button1 text={"Proceed"} onClickFunction={() => handleSubmit()} isLoading={isLoading}/>
       </div>
     </div>
   );

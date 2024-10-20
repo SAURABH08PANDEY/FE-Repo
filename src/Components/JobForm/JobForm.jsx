@@ -1,47 +1,47 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./jobForm.scss";
 import Button1 from "../Button/Button1";
 import { createInterview } from "../../redux/testSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import EmailTagInput from "../EmailInputTags/EmailInputTags";
 
 const JobForm = () => {
-  const [candidate, setCandidate] = useState("");
   const [experienceLevel, setExperienceLevel] = useState("");
   const [jobTitle, setJobTitle] = useState("");
   const [jobDescription, setJobDescription] = useState("");
   const [endDate, setEndDate] = useState("");
-  const dispatch = useDispatch();
+  const [emails, setEmails] = useState([]);
+  const { isLoading, status } = useSelector(
+    (state) => state?.testSlice?.createInterview
+  );
 
-  const handleCandidateChange = (e) => {
-    setCandidate(e.target.value);
-  };
+  const dispatch = useDispatch();
 
   const handleExperienceChange = (e) => {
     setExperienceLevel(e.target.value);
   };
 
   const handleSubmit = () => {
-    // console.log({
-    //   jobTitle,
-    //   jobDescription,
-    //   experienceLevel,
-    //   candidate,
-    //   endDate,
-    // });
     dispatch(
       createInterview({
         jobTitle,
         jobDescription,
         experienceLevel,
         endDate,
-        candidates: [
-          {
-            email: candidate,
-          },
-        ],
+        candidateEmails: emails
       })
     );
   };
+
+  useEffect(() => {
+    if(status) {
+      setExperienceLevel("");
+      setJobTitle("");
+      setJobDescription("");
+      setEndDate("");
+      setEmails([]);
+    } 
+  }, [status])
 
   return (
     <form className="job-form">
@@ -92,13 +92,7 @@ const JobForm = () => {
         <label htmlFor="candidate" className="job-form__label">
           Add Candidate
         </label>
-        <input
-          type="email"
-          id="candidate"
-          value={candidate}
-          onChange={handleCandidateChange}
-          placeholder="xyz@gmail.com"
-        />
+        <EmailTagInput width={"380px"} emails={emails} setEmails={setEmails}/>
       </div>
 
       <div className="form-group">
@@ -113,7 +107,11 @@ const JobForm = () => {
         />
       </div>
 
-      <Button1 text={"Send"} onClickFunction={() => handleSubmit()} />
+      <Button1
+        text={"Send"}
+        onClickFunction={() => handleSubmit()}
+        isLoading={isLoading}
+      />
     </form>
   );
 };

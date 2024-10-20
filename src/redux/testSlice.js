@@ -1,13 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { callApi } from "../common/api";
 
-const BASE_URL = "https://cuvette-backend-pwt6.onrender.com";
+const BASE_URL = "http://localhost:5000/api/v1";
 
 export const signUp = createAsyncThunk(
   "testSlice/signUp",
   async (params, thunkAPI) => {
     try {
-      const response = await callApi(`${BASE_URL}/api/signup`, "POST", {
+      const response = await callApi(`${BASE_URL}/init-company`, "POST", {
         ...params,
       });
       return response;
@@ -23,12 +23,12 @@ export const otpVerification = createAsyncThunk(
   "testSlice/otpVerification",
   async (params, thunkAPI) => {
     try {
-      const response = await callApi(`${BASE_URL}/api/verifyemail`, "POST", {
+      const response = await callApi(`${BASE_URL}/verify-otp`, "POST", {
         ...params,
       });
 
-      if (response?.token) {
-        localStorage.setItem("token", response?.token);
+      if (response?.data?.token) {
+        localStorage.setItem("token", response?.data?.token);
       }
       return response;
     } catch (error) {
@@ -42,11 +42,9 @@ export const otpVerification = createAsyncThunk(
 export const createInterview = createAsyncThunk(
   "testSlice/createInterview",
   async (params, thunkAPI) => {
-    console.log(thunkAPI?.getState()?.testSlice, "1111111111111111111");
-
     try {
       const response = await callApi(
-        `${BASE_URL}/api/jobadded`,
+        `${BASE_URL}/create-interview`,
         "POST",
         {
           ...params,
@@ -69,8 +67,8 @@ export const verifyToken = createAsyncThunk(
   async (params, thunkAPI) => {
     try {
       const response = await callApi(
-        `${BASE_URL}/api/tokenverify`,
-        "POST",
+        `${BASE_URL}/verify-token`,
+        "GET",
         {},
         {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -88,11 +86,11 @@ export const verifyToken = createAsyncThunk(
 const testSlice = createSlice({
   name: "testSlice",
   initialState: {
-    value: 0,
     signupData: {
       isLoading: false,
-      status: false,
-      data: {},
+      status: null,
+      companyId: null,
+      message: null,
     },
     otpVerification: {
       isLoading: false,
@@ -103,10 +101,10 @@ const testSlice = createSlice({
     createInterview: {
       isLoading: false,
       status: false,
-      data: {},
     },
     verifyToken: {
       isLoading: false,
+      status: null,
     },
   },
   reducers: {
@@ -127,11 +125,13 @@ const testSlice = createSlice({
       })
       .addCase(signUp.fulfilled, (state, action) => {
         state.signupData.isLoading = false;
-        state.signupData.status = true;
-        state.signupData.data = action.payload;
+        state.signupData.status = action.payload.success;
+        state.signupData.message = action.payload.data.message;
+        state.signupData.companyId = action.payload.data.companyId;
       })
       .addCase(signUp.rejected, (state, action) => {
         state.signupData.isLoading = false;
+        state.signupData.message = action.payload.message;
       });
     ///////////////////////////////////////////////////////////
     builder
@@ -140,9 +140,11 @@ const testSlice = createSlice({
       })
       .addCase(otpVerification.fulfilled, (state, action) => {
         state.otpVerification.isLoading = false;
-        state.otpVerification.emailStatus = action?.payload?.emailverified;
-        state.otpVerification.phoneStatus = action?.payload?.phoneverified;
-        state.otpVerification.token = action?.payload?.token;
+        state.otpVerification.emailStatus =
+          action?.payload?.data?.isEmailVerified;
+        state.otpVerification.phoneStatus =
+          action?.payload?.data?.isPhoneVerified;
+        state.otpVerification.token = action?.payload?.data?.token;
       })
       .addCase(otpVerification.rejected, (state, action) => {
         state.otpVerification.isLoading = false;
@@ -154,7 +156,6 @@ const testSlice = createSlice({
       })
       .addCase(createInterview.fulfilled, (state, action) => {
         state.createInterview.isLoading = false;
-        state.createInterview.data = action.payload;
         state.createInterview.status = action.payload?.status;
       })
       .addCase(createInterview.rejected, (state, action) => {
@@ -167,9 +168,12 @@ const testSlice = createSlice({
       })
       .addCase(verifyToken.fulfilled, (state, action) => {
         state.verifyToken.isLoading = false;
+        state.verifyToken.status = action.payload?.status;
+        state.otpVerification.token = action.payload?.status ? localStorage.getItem('token') : null;
       })
       .addCase(verifyToken.rejected, (state, action) => {
         state.verifyToken.isLoading = false;
+        state.verifyToken.status = action.payload?.status;
         localStorage.clear();
       });
   },

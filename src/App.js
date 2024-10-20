@@ -8,8 +8,11 @@ import { verifyToken } from "./redux/testSlice";
 
 function App() {
   const dispatch = useDispatch();
+  const token = localStorage.getItem("token");
   useEffect(() => {
-    dispatch(verifyToken());
+    if (token) {
+      dispatch(verifyToken());
+    }
   }, [dispatch]);
   return (
     <div className="App">
