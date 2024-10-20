@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { callApi } from "../common/api";
 
-const BASE_URL = "http://localhost:5000/api/v1";
+const BASE_URL = "https://be-repo-s2xl.onrender.com/api/v1";
 
 export const signUp = createAsyncThunk(
   "testSlice/signUp",
